@@ -124,34 +124,25 @@ def display_field(rows, columns, field, display):
             print(y + 1, end=' ')
         for x in range(rows):
             if field[x][y]['is_a_mine'] and display == 'surrounding_mines':
-                print('x', end='  ')
+                print('x ', end=' ')
             else:
                 print(field[x][y][display], end='  ')
         print() #  new line for each row
 
 
 def reveal(field, coords):
-    if field[coords['x']][coords['y']]['is_a_mine']:
-        return True, field
-    # lose if they reveal a mine
-    field[coords['x']][coords['y']]['display'] = field[coords['x']][coords['y']]['surrounding_mines']
     try:
-        if not field[coords['x']][coords['y'] + 1]['is_a_mine'] and field[coords['x']][coords['y'] + 1]['display'] != field[coords['x']][coords['y'] + 1]['surrounding_mines'] and field[coords['x']][coords['y'] + 1]['surrounding_mines'] <= 1:
+        if field[coords['x']][coords['y']]['is_a_mine']:
+            field[coords['x']][coords['y']]['display'] = 'X'
+            return True, field
+        field[coords['x']][coords['y']]['display'] = field[coords['x']][coords['y']]['surrounding_mines']
+        if not field[coords['x']][coords['y'] + 1]['is_a_mine'] and field[coords['x']][coords['y'] + 1]['display'] != field[coords['x']][coords['y'] + 1]['surrounding_mines']:
             reveal(field, {'x': coords['x'], 'y': coords['y'] + 1})
-    except IndexError:
-        pass
-    try:
-        if not field[coords['x'] - 1][coords['y']]['is_a_mine'] and field[coords['x'] - 1][coords['y']]['display'] != field[coords['x'] - 1][coords['y']]['surrounding_mines'] and field[coords['x'] - 1][coords['y']]['surrounding_mines'] <= 1:
+        if not field[coords['x'] - 1][coords['y']]['is_a_mine'] and field[coords['x'] - 1][coords['y']]['display'] != field[coords['x'] - 1][coords['y']]['surrounding_mines']:
             reveal(field, {'x': coords['x'] - 1, 'y': coords['y']})
-    except IndexError:
-        pass
-    try:
-        if not field[coords['x'] + 1][coords['y']]['is_a_mine'] and field[coords['x'] + 1][coords['y']]['display'] != field[coords['x'] + 1][coords['y']]['surrounding_mines'] and field[coords['x'] + 1][coords['y']]['surrounding_mines'] <= 1:
+        if not field[coords['x'] + 1][coords['y']]['is_a_mine'] and field[coords['x'] + 1][coords['y']]['display'] != field[coords['x'] + 1][coords['y']]['surrounding_mines']:
             reveal(field, {'x': coords['x'] + 1, 'y': coords['y']})
-    except IndexError:
-        pass
-    try:
-        if not field[coords['x']][coords['y'] - 1]['is_a_mine'] and field[coords['x']][coords['y'] - 1]['display'] != field[coords['x']][coords['y'] - 1]['surrounding_mines'] and field[coords['x']][coords['y'] - 1]['surrounding_mines'] <= 1:
+        if not field[coords['x']][coords['y'] - 1]['is_a_mine'] and field[coords['x']][coords['y'] - 1]['display'] != field[coords['x']][coords['y'] - 1]['surrounding_mines']:
             reveal(field, {'x': coords['x'], 'y': coords['y'] - 1})
     except IndexError:
         pass
@@ -170,17 +161,22 @@ def choose_tool():
 
 
 def flag_unflag(field, coords):
+    '''
+    if the spot has already been revealed:
+        don't let the user flag it
+    if
+
+    '''
     pass
 
 
 if __name__ == "__main__":
     options = input_opts(False)
-    field = generate_field(options['rows'], options['columns'], options['mines'])
-    # Generates the field
-    display_field(options['rows'], options['columns'], field, 'surrounding_mines')
-    # Revealed field
-    display_field(options['rows'], options['columns'], field, 'display')
-    # Game field
+    num_rows = options['rows']
+    num_columns = options['columns']
+    board_size = num_rows * num_columns
+    field = generate_field(num_rows, num_columns, options['mines'])
+    display_field(num_rows, num_columns, field, 'display')
     a_mine = [False]
     # Initialize the a_mine list
 
@@ -188,26 +184,26 @@ if __name__ == "__main__":
     while not a_mine[0]:
         tool = choose_tool()
         # choose your tool, reveal or flag
-        coords = choose_coords(options['rows'], options['columns'])
+        coords = choose_coords(num_rows, num_columns)
         # choose your coordinates
         print("\n" * 50)
         # clear the screen
         if tool == 1:
             a_mine = reveal(field, coords)
-            display_field(options['rows'], options['columns'], field, 'surrounding_mines')
+            display_field(num_rows, num_columns, field, 'surrounding_mines')
             # Revealed field
-            display_field(options['rows'], options['columns'], field, 'display')
+            display_field(num_rows, num_columns, field, 'display')
             # Game field
         if tool == 2:
             flag_unflag(field, coords)
-            display_field(options['rows'], options['columns'], field, 'surrounding_mines')
+            display_field(num_rows, num_columns, field, 'surrounding_mines')
             # Revealed field
-            display_field(options['rows'], options['columns'], field, 'display')
+            display_field(num_rows, num_columns, field, 'display')
             # Game field
         if a_mine[0]:
             print("\n" * 50)
             # clear the screen
-            display_field(options['rows'], options['columns'], field, 'surrounding_mines')
+            display_field(num_rows, num_columns, field, 'surrounding_mines')
             # Revealed field
             print(LOSE)
             # the user lost, so tell them
